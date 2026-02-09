@@ -1,3 +1,15 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import java.awt.event.*;
+import java.io.*;
+import java.text.NumberFormat;
+import java.util.Locale;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
@@ -8,12 +20,33 @@
  * @author Sudirwo
  */
 public class DiskonFrame extends javax.swing.JFrame {
-
+    private int nomorUrut = 1;
     /**
      * Creates new form DiskonFrame
      */
     public DiskonFrame() {
         initComponents();
+        
+        // 1. Set default ke 0
+        sliderDiskon.setValue(0);
+        comboDiskon.setSelectedIndex(0);
+        
+        // 2. Filter Input Angka Saja pada txtHargaAsli
+        ((AbstractDocument) txtHargaAsli.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) 
+                    throws BadLocationException {
+                if (string.matches("\\d+")) super.insertString(fb, offset, string, attr);
+            }
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) 
+                    throws BadLocationException {
+                // Izinkan angka ATAU string kosong (untuk hapus)
+                if (text == null || text.isEmpty() || text.matches("\\d+")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
     }
 
     /**
@@ -41,6 +74,7 @@ public class DiskonFrame extends javax.swing.JFrame {
         btnHitung = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtRiwayat = new javax.swing.JTextArea();
+        btnHapus = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -61,7 +95,7 @@ public class DiskonFrame extends javax.swing.JFrame {
 
         jLabel7.setText("Riwayat:");
 
-        comboDiskon.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%" }));
+        comboDiskon.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0%", "1%", "2%", "3%", "4%", "5%", "6%", "7%", "8%", "9%", "10%", "11%", "12%", "13%", "14%", "15%", "16%", "17%", "18%", "19%", "20%", "21%", "22%", "23%", "24%", "25%", "26%", "27%", "28%", "29%", "30%", "31%", "32%", "33%", "34%", "35%", "36%", "37%", "38%", "39%", "40%", "41%", "42%", "43%", "44%", "45%", "46%", "47%", "48%", "49%", "50%", "51%", "52%", "53%", "54%", "55%", "56%", "57%", "58%", "59%", "60%", "61%", "62%", "63%", "64%", "65%", "66%", "67%", "68%", "69%", "70%", "71%", "72%", "73%", "74%", "75%", "76%", "77%", "78%", "79%", "80%", "81%", "82%", "83%", "84%", "85%", "86%", "87%", "88%", "89%", "90%", "91%", "92%", "93%", "94%", "95%", "96%", "97%", "98%", "99%", "100%" }));
         comboDiskon.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 comboDiskonItemStateChanged(evt);
@@ -90,6 +124,13 @@ public class DiskonFrame extends javax.swing.JFrame {
         txtRiwayat.setRows(5);
         jScrollPane1.setViewportView(txtRiwayat);
 
+        btnHapus.setText("Reset");
+        btnHapus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHapusActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -105,22 +146,26 @@ public class DiskonFrame extends javax.swing.JFrame {
                             .addComponent(jLabel4)
                             .addComponent(jLabel7))
                         .addGap(66, 66, 66)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(lblHargaAkhir)
-                            .addComponent(sliderDiskon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addComponent(txtKupon)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnHitung))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblPenghematan)
-                            .addComponent(txtHargaAsli)
-                            .addComponent(comboDiskon, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(btnHapus)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(lblHargaAkhir)
+                                    .addComponent(sliderDiskon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                        .addComponent(txtKupon)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(btnHitung))
+                                    .addComponent(txtHargaAsli)
+                                    .addComponent(comboDiskon, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
                 .addContainerGap(38, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(25, 25, 25)
+                .addComponent(btnHapus)
+                .addGap(2, 2, 2)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(txtHargaAsli, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -139,11 +184,11 @@ public class DiskonFrame extends javax.swing.JFrame {
                 .addComponent(lblHargaAkhir)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblPenghematan)
-                .addGap(2, 2, 2)
+                .addGap(6, 6, 6)
                 .addComponent(jLabel7)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(10, Short.MAX_VALUE))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -162,8 +207,8 @@ public class DiskonFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -172,43 +217,80 @@ public class DiskonFrame extends javax.swing.JFrame {
 
     private void btnHitungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHitungActionPerformed
         // TODO add your handling code here:
-        hitungDiskon();
+        try {
+            // Ambil input
+            double hargaAsli = Double.parseDouble(txtHargaAsli.getText());
+            int diskonUtama = sliderDiskon.getValue();
+
+            // Logika tambahan diskon dari kupon (jika ada)
+            int diskonTambahan = 0;
+            if (txtKupon.getText().trim().equalsIgnoreCase("HEMAT5")) {
+                diskonTambahan = 5;
+            }
+
+            int totalDiskon = diskonUtama + diskonTambahan;
+            double jumlahHemat = hargaAsli * totalDiskon / 100;
+            double hargaAkhir = hargaAsli - jumlahHemat;
+
+            // Format Rupiah tanpa desimal
+            java.text.NumberFormat nf = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("id", "ID"));
+            nf.setMaximumFractionDigits(0);
+
+            // --- FORMAT SESUAI PERMINTAANMU ---
+            // Hasil: "1 | Harga: Rp 10.000 | Diskon: 10% | Akhir: Rp 9.000"
+            String barisBaru = String.format("%d | Harga: %s | Diskon: %d%% | Akhir: %s\n", 
+                                              nomorUrut, 
+                                              nf.format(hargaAsli), 
+                                              totalDiskon, 
+                                              nf.format(hargaAkhir));
+
+            // Masukkan ke JTextArea riwayat
+            txtRiwayat.append(barisBaru);
+
+            // Update label tampilan utama
+            lblPenghematan.setText("Hemat: " + nf.format(jumlahHemat));
+            lblHargaAkhir.setText("Total Akhir: " + nf.format(hargaAkhir));
+
+            // Naikkan nomor untuk baris berikutnya
+            nomorUrut++;
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Input Harga Harus Angka!");
+        }
     }//GEN-LAST:event_btnHitungActionPerformed
 
     private void comboDiskonItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_comboDiskonItemStateChanged
         // TODO add your handling code here:
-        updateSlider();
+        String selected = comboDiskon.getSelectedItem().toString().replace("%", "");
+        try {
+            int nilai = Integer.parseInt(selected);
+            sliderDiskon.setValue(nilai);
+        } catch (Exception e) {}
     }//GEN-LAST:event_comboDiskonItemStateChanged
 
     private void sliderDiskonStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sliderDiskonStateChanged
         // TODO add your handling code here:
-        updateCombo();
+        int nilaiSlider = sliderDiskon.getValue();
+        // Update combo box jika nilai slider ada di pilihan combo (misal 10, 20, dll)
+        comboDiskon.setSelectedItem(nilaiSlider + "%");
     }//GEN-LAST:event_sliderDiskonStateChanged
 
-    private void hitungDiskon() {
-        try {
-            double hargaAsli = Double.parseDouble(txtHargaAsli.getText());
-            int diskon = Integer.parseInt(comboDiskon.getSelectedItem().toString().replace("%", ""));
-            int tambahan = cekKupon(txtKupon.getText());
+    private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
+        // TODO add your handling code here:
+        // Gunakan cara paksa ini jika .setText("") biasa gagal
+        txtHargaAsli.setText(""); 
 
-            int totalDiskon = diskon + tambahan;
-            if (totalDiskon > 100) totalDiskon = 100;
+        txtKupon.setText("");
+        sliderDiskon.setValue(0);
+        comboDiskon.setSelectedIndex(0);
+        lblHargaAkhir.setText("Harga Akhir: ");
+        lblPenghematan.setText("Penghematan: ");
 
-            double potongan = hargaAsli * totalDiskon / 100;
-            double hargaAkhir = hargaAsli - potongan;
+        // Kembalikan kursor ke kotak harga
+        txtHargaAsli.requestFocus();
+    }//GEN-LAST:event_btnHapusActionPerformed
 
-            lblHargaAkhir.setText("Harga Akhir: " + hargaAkhir);
-            lblPenghematan.setText("Penghematan: " + potongan);
-
-            txtRiwayat.append("Harga: " + hargaAsli + 
-                              " | Diskon: " + totalDiskon + "% | Akhir: " + hargaAkhir + "\n");
-
-        } catch (Exception e) {
-            lblHargaAkhir.setText("Input tidak valid!");
-            lblPenghematan.setText("-");
-        }
-    }
-    
+   
     private int cekKupon(String kode) {
         kode = kode.trim().toUpperCase();
 
@@ -219,15 +301,7 @@ public class DiskonFrame extends javax.swing.JFrame {
         }
     }
     
-    private void updateSlider() {
-        int val = Integer.parseInt(comboDiskon.getSelectedItem().toString().replace("%", ""));
-        sliderDiskon.setValue(val);
-    }
     
-    private void updateCombo() {
-        int val = sliderDiskon.getValue();
-        comboDiskon.setSelectedItem(val + "%");
-    }   
     
     /**
      * @param args the command line arguments
@@ -265,6 +339,7 @@ public class DiskonFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnHapus;
     private javax.swing.JButton btnHitung;
     private javax.swing.JComboBox<String> comboDiskon;
     private javax.swing.JLabel jLabel1;
